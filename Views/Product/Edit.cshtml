@@ -1,0 +1,326 @@
+﻿@model EBM.Models.Product
+
+@{
+    ViewBag.Title = "Edit Product Info";
+}
+<link href="~/Theme/Upload/jasny-bootstrap/css/jasny-bootstrap.min.css" rel="stylesheet" />
+<link href="~/Theme/Upload/jasny-bootstrap/css/jasny-bootstrap-responsive.min.css" rel="stylesheet" />
+<script src="~/Theme/Upload/jasny-bootstrap/js/jasny-bootstrap.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.fileupload').on('change.bs.fileupload', function (event) {
+            event.stopPropagation();
+        });
+
+         //$("#InitialBalance").inputmask("decimal", {
+         //    placeholder: "0",
+         //    digits: 3,
+         //    digitsOptional: false,
+         //    allowPlus: false,
+         //    allowMinus: false,
+         //    clearMaskOnLostFocus: false,
+         //    removeMaskOnSubmit: true,
+         //    autoUnmask: true,
+         //    onUnMask: function (maskedValue, unmaskedValue) {
+         //        var x = unmaskedValue;
+         //        return x;
+         //    }
+         //});
+
+         //$("#Price").inputmask("decimal", {
+         //    placeholder: "0",
+         //    prefix: "Tk ",
+         //    digits: 2,
+         //    digitsOptional: false,
+         //    radixPoint: ",",
+         //    groupSeparator: ".",
+         //    autoGroup: true,
+         //    allowPlus: false,
+         //    allowMinus: false,
+         //    clearMaskOnLostFocus: false,
+         //    removeMaskOnSubmit: true,
+         //    autoUnmask: true,
+         //    onUnMask: function (maskedValue, unmaskedValue) {
+         //        var x = unmaskedValue.split(',');
+         //        return x[0].replace(/\./g, '') + '.' + x[1];
+         //    }
+         //});
+
+    });
+
+    function UpdateAction() {
+        var ID = $("[id='ProductID']").val();
+        var URL = "@Html.Raw(@Url.Action("Edit", "Product", new { @id = "-1"}))";
+        URL = URL.replace("-1", ID);
+        var URLSuccess = "@Url.Action("Index", "Product")";
+        var res = "";
+
+        var fileUpload = $("#FileUpload1").get(0);
+        var files = fileUpload.files;
+
+        // Create FormData object
+        //var form = $('#productEditForm')[0];
+        var fileData = new FormData();
+
+        // Looping over all files and add it to FormData object
+        for (var i = 0; i < files.length; i++) {
+            fileData.append(files[i].name, files[i]);
+        }
+
+        var selectedFile = ($("#inputGroupFile01"))[0].files[0];//FileControl.files[0];
+        if (selectedFile) {
+            alert(selectedFile.name);
+            fileData.append(selectedFile.name, selectedFile);
+        }
+
+        // Adding one more key to FormData object
+        //fileData.append('username', 'Manas');
+
+        $.ajax({
+            url: '/product/UploadFiles',
+            type: "POST",
+            contentType: false, // Not to set any content header
+            processData: false, // Not to process data
+            data: fileData,
+            success: function (resultfile) {
+                for (var i = 0; item = resultfile[i]; i++) {
+                    if (item.type == "image") {
+                        $("[id='hidImagePath']").val("");
+                        $("[id='hidImagePath']").val(item.path);
+                    }
+                    if (item.type == "pdf") {
+                        $("[id='hidPdfPath']").val("");
+                        $("[id='hidPdfPath']").val(item.path);
+                    }
+                    if (item.type == "nofile") {
+                        $("[id='hidImagePath']").val("");
+                        $("[id='hidImagePath']").val(item.path);
+                        $("[id='hidPdfPath']").val("");
+                        $("[id='hidPdfPath']").val(item.path);
+                    }
+                }
+
+                $.post(URL, $('#productEditForm').serialize(), function (result) {
+                    res = result;
+                    NotificationFunctions(res);
+                    if (res == "invalid") {
+                        $('#productEditForm').trigger('submit');
+                    }
+                });
+                window.setTimeout(function () {
+                    if (res == "success") {
+                        window.location.href = URLSuccess;
+                    }
+                }, 3000);
+            },
+            error: function (err) {
+                alert(err.statusText);
+            }
+        });
+
+        
+    }
+
+    function NotificationFunctions(resData) {
+        if (resData == "success") {
+            new PNotify({
+                title: 'Update Success',
+                text: 'Product successfully updated!',
+                type: 'success',
+                styling: 'bootstrap3'
+            });
+        }
+        else {
+            new PNotify({
+                title: 'Oh No!',
+                text: 'Something terrible happened. can not update',
+                type: 'info',
+                styling: 'bootstrap3',
+                addclass: 'dark'
+            });
+        }
+    }
+
+</script>
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Edit Product</h3>
+            </div>
+
+            <div class="title_right">
+                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">Go!</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Product <small>edit info for update product</small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href="#">Settings 1</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Settings 2</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a class="close-link"><i class="fa fa-close"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        <form id="productEditForm" data-parsley-validate class="form-horizontal form-label-left" method="post" action="@Url.Action("Edit", "Product")">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.ProductID)
+                            @Html.HiddenFor(model => model.ImagePath)
+                            @Html.HiddenFor(model => model.SpecificationFile)
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="Name">
+                                    Name <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12", @required = "required" } })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="CategoryID">
+                                    Category <span class="required">*</span>
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    @Html.DropDownList("CategoryID", null, "Select Category", htmlAttributes: new { @class = "select2_single form-control", @required = "required" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ProductModelID">
+                                    Model No
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    @Html.DropDownList("ProductModelID", null, "Select Model No", htmlAttributes: new { @class = "select2_single form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="MesurmentUnitID">
+                                    Unit <span class="required">*</span>
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    @Html.DropDownList("MesurmentUnitID", null, "Select Unit", htmlAttributes: new { @class = "select2_single form-control", @required = "required" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="InitialBalance">
+                                    Initial Balance
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    @Html.EditorFor(model => model.InitialBalance, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12" } })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="Price">
+                                    Price
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12" } })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="Description">
+                                    Description
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    @Html.TextAreaFor(model => model.Description, new { htmlAttributes = new { @class = "resizable_textarea form-control" } })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="">Image Upload</label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <div class="controls">
+                                        <div id="imageupload" class="fileupload fileupload-new" data-provides="fileupload" data-name="myimage">
+                                            <div class="fileupload-new thumbnail" style="width: 200px; height: 150px;"><img src="~/Theme/images/no-image.png" /></div>
+                                            <div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 200px; max-height: 150px; line-height: 20px;"></div>
+                                            <div>
+                                                <span class="btn btn-round btn-default btn-file"><span class="fileupload-new"><i class="fa fa-file-image-o"></i> Select image</span><span class="fileupload-exists"><i class="fa fa-file-image-o"></i> Change</span><input id="FileUpload1" type="file" /></span>
+                                                <a href="#" class="btn btn-round btn-default fileupload-exists" data-dismiss="fileupload"><i class="fa fa-trash-o"></i> Remove</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @Html.Hidden("hidImagePath")
+                                    @Html.Hidden("hidImageName")
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                                    Specification
+                                </label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+                                    <label class="custom-file-label" for="inputGroupFile01">Choose PDF file</label>
+                                </div>
+                                @Html.Hidden("hidPdfPath")
+                                @Html.Hidden("hidPdfName")
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                    <a href="@Url.Action("Index", "Product")" class="btn btn-primary"><i class="fa fa-close"></i> Cancel</a>
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target=".bs-example-modal-sm"><i class="fa fa-pencil"></i> Update</button>
+                                </div>
+                            </div>
+
+                            <!--Models dialog -->
+                            <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                            <h4 class="modal-title" id="myModalLabel2">Warning!</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h4>Edit Confirmation</h4>
+                                            <p>Are you sure? Do you want to Edit this Product?</p>
+                                            <p>For Edit, press Update button. Otherwise press Close button.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                                            <button type="button" class="btn btn-success" data-dismiss="modal" onclick="UpdateAction()"><i class="fa fa-pencil"></i> Update</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Models dialog end-->
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

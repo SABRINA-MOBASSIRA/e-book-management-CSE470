@@ -1,0 +1,157 @@
+﻿@model EBM.Models.UserRoll
+
+@{
+    ViewBag.Title = "Create Roll";
+}
+
+<script>
+    function CreateAction() {
+        var URL = "@Url.Action("Create", "UserRoll")";
+        var URLSuccess = "@Url.Action("Index", "UserRoll")";
+        var res = "";
+        var selectedUserText = $("#UserID").find("option:selected").text();
+        $("[id='hidUserName']").val(selectedUserText);
+        $.post(URL, $('#userRollCreateForm').serialize(), function (result) {
+            res = result;
+            NotificationFunctions(res);
+            if (res == "invalid") {
+                $('#userRollCreateForm').trigger('submit');
+            }
+        });
+        window.setTimeout(function () {
+            if (res == "success") {
+                window.location.href = URLSuccess;
+            }
+        }, 3000);
+    }
+
+    function NotificationFunctions(resData) {
+        if (resData == "success") {
+            new PNotify({
+                title: 'Create Success',
+                text: 'User Roll successfully created!',
+                type: 'success',
+                styling: 'bootstrap3'
+            });
+        }
+        else {
+            new PNotify({
+                title: 'Oh No!',
+                text: 'Something terrible happened. can not create',
+                type: 'info',
+                styling: 'bootstrap3',
+                addclass: 'dark'
+            });
+        }
+    }
+
+</script>
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Create User Roll</h3>
+            </div>
+
+            <div class="title_right">
+                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">Go!</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>User Roll <small>fill info for create a new user roll</small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href="#">Settings 1</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Settings 2</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a class="close-link"><i class="fa fa-close"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        <form id="userRollCreateForm" data-parsley-validate class="form-horizontal form-label-left" method="post" action="@Url.Action("Create", "UserRoll")">
+                            @Html.AntiForgeryToken()
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="UserGroupID">
+                                    Group Name <span class="required">*</span>
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    @Html.DropDownList("UserGroupID", null, htmlAttributes: new { @class = "select2_single form-control", @tabindex = "-1", @required = "required" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="UserID">
+                                    User <span class="required">*</span>
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    @Html.DropDownList("UserID", null, htmlAttributes: new { @class = "select2_single form-control", @tabindex = "-1", @required = "required" })
+                                    @Html.HiddenFor(model => model.UserName, new { @id = "hidUserName" })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                    <a href="@Url.Action("Index", "UserRoll")" class="btn btn-primary"><i class="fa fa-close"></i> Cancel</a>
+                                    <button class="btn btn-primary" type="reset"><i class="fa fa-refresh"></i> Reset</button>
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target=".bs-example-modal-sm"><i class="fa fa-file"></i> Save</button>
+                                </div>
+                            </div>
+
+                            <!--Models dialog -->
+                            <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                            <h4 class="modal-title" id="myModalLabel2">Warning!</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h4>Create Confirmation</h4>
+                                            <p>Are you sure? Do you want to create this User Roll?</p>
+                                            <p>For create, press Save button. Otherwise press Close button.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                                            <button type="button" class="btn btn-success" data-dismiss="modal" onclick="CreateAction()"><i class="fa fa-file"></i> Save</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Models dialog end-->
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

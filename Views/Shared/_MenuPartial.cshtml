@@ -1,0 +1,183 @@
+﻿
+@using Microsoft.AspNet.Identity
+@if (Request.IsAuthenticated)
+{
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+        @Html.AntiForgeryToken()
+
+<div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+    <div class="menu_section">
+        <h3>Home</h3>
+        <ul class="nav side-menu">
+            <li>
+                <a><i class="fa fa-home"></i> Home <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    @*<div class="menu_section">
+            <h3>Purchase</h3>
+            <ul class="nav side-menu">
+                <li>
+                    <a><i class="fa fa-desktop"></i> Purchase <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                        <li>@Html.ActionLink("Requisition Slip", "Index", "RequisitionSlip")</li>
+                        <li>@Html.ActionLink("Purchase Requisition", "Index", "PurchaseRequisition")</li>
+                        <li>@Html.ActionLink("Purchase Order", "Index", "PurchaseOrder")</li>
+                        <li>@Html.ActionLink("Supplier", "Index", "Supplier")</li>
+                    </ul>
+                </li>
+                <li>
+                    <a><i class="fa fa-table"></i> Material <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                        <li>@Html.ActionLink("Material", "Index", "Material")</li>
+                        <li>@Html.ActionLink("Challan Receive", "Index", "ChallanReceive")</li>
+                        <li>@Html.ActionLink("Material Issue", "Index", "MaterialIssue")</li>
+                        <li>@Html.ActionLink("Material BIN card", "Index", "BINCard")</li>
+                    </ul>
+                </li>
+                <li>
+                    <a><i class="fa fa-sitemap"></i> Test <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                        <li>
+                            <a>Field Test<span class="fa fa-chevron-down"></span></a>
+                            <ul class="nav child_menu">
+                                <li class="sub_menu">@Html.ActionLink("Cement", "Index", "Ticket")</li>
+                                <li>@Html.ActionLink("Spiral Wire", "Index", "TicketCategorie")</li>
+                                <li>@Html.ActionLink("Stone Chips", "Index", "Home")</li>
+                                <li>@Html.ActionLink("Stone Dust", "Index", "Home")</li>
+                                <li>@Html.ActionLink("Sylhet Sand", "Index", "Home")</li>
+                                <li>@Html.ActionLink("H.T Wire", "Index", "Home")</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a>Lab Test<span class="fa fa-chevron-down"></span></a>
+                            <ul class="nav child_menu">
+                                <li class="sub_menu">@Html.ActionLink("Stone Chips", "Index", "LabTestStoneChip")</li>
+                                <li>@Html.ActionLink("Sylhet Sand", "Index", "LABTestSylhetSand")</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>*@
+    <div class="menu_section">
+        <h3>Product</h3>
+        <ul class="nav side-menu">
+            <li>
+                <a><i class="fa fa-bug"></i> Product <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                    <li>@Html.ActionLink("Product", "Index", "Product")</li>
+                </ul>
+            </li>
+            @*<li>
+                    <a><i class="fa fa-windows"></i> Delivery <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                        <li>@Html.ActionLink("Delivery Challan", "Index", "DeliveryChallan")</li>
+                        <li>@Html.ActionLink("Gate Pass", "Index", "GatePass")</li>
+                        <li>@Html.ActionLink("PBS", "Index", "PBS")</li>
+                        <li>@Html.ActionLink("PBS Allocation", "Index", "PBSAllocation")</li>
+                    </ul>
+                </li>*@
+        </ul>
+    </div>
+    <div class="menu_section">
+        <h3>Sales</h3>
+        <ul class="nav side-menu">
+            <li>
+                <a><i class="fa fa-bug"></i> Order <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                    <li>@Html.ActionLink("Order", "Index", "SalesQuotation", routeValues: new { type = "LS" }, htmlAttributes: null)</li>
+                </ul>
+            </li>
+            <li>
+                <a><i class="fa fa-bug"></i> Delivery <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                    <li>@Html.ActionLink("Delivery", "Index", "DeliveryChallan")</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="menu_section">
+        <h3>Customer</h3>
+        <ul class="nav side-menu">
+
+            <li>
+                <a><i class="fa fa-bug"></i> Customer <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                    <li>@Html.ActionLink("Customer", "Index", "Customer")</li>
+                    @*<li>@Html.ActionLink("Contract", "Index", "Contract")</li>*@
+
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="menu_section">
+        <h3>Seller</h3>
+        <ul class="nav side-menu">
+
+            <li>
+                <a><i class="fa fa-bug"></i> Seller <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                    <li>@Html.ActionLink("Seller", "Index", "Seller")</li>
+                    @*<li>@Html.ActionLink("Contract", "Index", "Contract")</li>*@
+
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="menu_section">
+        <h3>Setting</h3>
+        <ul class="nav side-menu">
+            <li>
+                <a><i class="fa fa-bug"></i> Setup <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                    @*<li>@Html.ActionLink("Category", "Index", "Category")</li>
+                        <li>@Html.ActionLink("Mesurment Unit", "Index", "MesurmentUnit")</li>
+                        <li>@Html.ActionLink("Product Model", "Index", "ProductModel")</li>
+                        <li>@Html.ActionLink("VAT Number", "Index", "VATRegistrationNo")</li>*@
+                    <li>@Html.ActionLink("Profile", "Index", "Profile")</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="menu_section">
+        <h3>Administration</h3>
+        <ul class="nav side-menu">
+            <li>
+                <a><i class="fa fa-bug"></i> Administration <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu">
+                    <li>@Html.ActionLink("Privilage", "Index", "Privilage")</li>
+                    <li>@Html.ActionLink("User Group", "Index", "UserGroup")</li>
+                    <li>@Html.ActionLink("User Group Roll", "CreateGroupRoll", "UserGroupRoll")</li>
+                    <li>@Html.ActionLink("User Roll", "Index", "UserRoll")</li>
+                    @*<li>@Html.ActionLink("User Permission", "Index", "UserRegistrationInfo")</li>*@
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+</div>
+    }
+}
+else
+{
+    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+        <div class="menu_section">
+            <h3>Home</h3>
+            <ul class="nav side-menu">
+                <li>
+                    <a><i class="fa fa-home"></i> Home <span class="fa fa-chevron-down"></span></a>
+                    <ul class="nav child_menu">
+                        <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                        <li>@Html.ActionLink("About", "About", "Home")</li>
+                        <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+}

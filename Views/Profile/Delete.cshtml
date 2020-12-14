@@ -1,0 +1,235 @@
+﻿@model EBM.Models.Profile
+
+@{
+    ViewBag.Title = "Delete Profile Info";
+}
+
+<script>
+    function DeleteAction() {
+        var ID = $("[id='ProfileID']").val();
+        var URL = "@Html.Raw(@Url.Action("Delete", "Profile", new { @id = "-1"}))";
+        URL = URL.replace("-1", ID);
+        var URLSuccess = "@Url.Action("Index", "Profile")";
+        var res = "";
+
+        $.post(URL, $('#DeleteProfileForm').serialize(), function (result) {
+            res = result;
+            NotificationFunctions(res);
+        });
+        window.setTimeout(function () {
+            if (res == "success") {
+                window.location.href = URLSuccess;
+            }
+        }, 3000);
+    }
+
+    function NotificationFunctions(resData) {
+        if (resData == "success") {
+            new PNotify({
+                title: 'Delete Success',
+                text: 'Profile successfully deleted!',
+                type: 'success',
+                styling: 'bootstrap3'
+            });
+        }
+        else {
+            new PNotify({
+                title: 'Oh No!',
+                text: 'Something terrible happened. can not delete',
+                type: 'info',
+                styling: 'bootstrap3',
+                addclass: 'dark'
+            });
+        }
+    }
+
+</script>
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Profile Contact </h3>
+            </div>
+
+            <div class="title_right">
+                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">Go!</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Profile</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href="#">Settings 1</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Settings 2</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a class="close-link"><i class="fa fa-close"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <div class="x_content">
+                        @Html.HiddenFor(model => model.ProfileID)
+                        <!-- start Profile-detail sidebar -->
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+
+                            <section class="panel">
+
+                                @*<div class="x_title">
+                                        <h2>Project Description</h2>
+                                        <div class="clearfix"></div>
+                                    </div>*@
+                                <div class="col-md-12">
+                                    @{string nam = (!string.IsNullOrEmpty(Model.FirstName)) ? Model.FirstName + " " + Model.LastName : Model.LastName;}
+                                    <h3 class="green"><i class="fa fa-paint-brush"></i> @nam</h3>
+                                    <div class="clearfix"></div>
+
+                                    <div class="col-md-6">
+                                        <div style="margin-left:4.5%;" class="project_detail">
+                                            <p>No description</p>
+                                            <br />
+                                            <p class="title">Title</p>
+                                            @{string rpter = (Model.Title != null) ? Model.Title : "N/A";}
+                                            <p>@rpter</p>
+                                            <p class="title">Department</p>
+                                            @{string indst = ((!string.IsNullOrEmpty(Model.Department)) ? Model.Department : "N/A");}
+                                            <p>@indst</p>
+                                            <p class="title">Office Phone</p>
+                                            @{string suplr = (Model.OfficePhone != null) ? Model.OfficePhone : "N/A";}
+                                            <p>@suplr</p>
+                                            <p class="title">Mobile</p>
+                                            @{string camp = (Model.Mobile != null) ? Model.Mobile : "N/A";}
+                                            <p>@camp</p>
+                                            <p class="title">Email Address</p>
+                                            @{string eml = (Model.EmailAddress != null) ? Model.EmailAddress : "N/A";}
+                                            <p>@eml</p>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div class="col-md-6">
+                                        <div style="margin-left:4.5%;">
+                                            <h5>Primary Address</h5>
+                                            <ul class="list-unstyled project_files">
+                                                <li>
+                                                    @{string bstrt = ((!string.IsNullOrEmpty(Model.PrimaryStreet)) ? Model.PrimaryStreet : "N/A");}
+                                                    <strong>Street:</strong> @bstrt
+                                                </li>
+                                                <li>
+                                                    @{string bct = ((!string.IsNullOrEmpty(Model.PrimaryCity)) ? Model.PrimaryCity : "N/A");}
+                                                    <strong>City:</strong> @bct
+                                                </li>
+                                                <li>
+                                                    @{string bstat = ((!string.IsNullOrEmpty(Model.PrimaryState)) ? Model.PrimaryState : "N/A");}
+                                                    <strong>State:</strong> @bstat
+                                                </li>
+                                                <li>
+                                                    @{string bpc = ((!string.IsNullOrEmpty(Model.PrimaryPostalCode)) ? Model.PrimaryPostalCode : "N/A");}
+                                                    <strong>Postal Code:</strong> @bpc
+                                                </li>
+                                                <li>
+                                                    @{string bcontr = ((!string.IsNullOrEmpty(Model.PrimaryCountry)) ? Model.PrimaryCountry : "N/A");}
+                                                    <strong>Country:</strong> @bcontr
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>Other Address</h5>
+                                        <ul class="list-unstyled project_files">
+                                            <li>
+                                                @{string sstrt = ((!string.IsNullOrEmpty(Model.OtherStreet)) ? Model.OtherStreet : "N/A");}
+                                                <strong>Street:</strong> @sstrt
+                                            </li>
+                                            <li>
+                                                @{string sct = ((!string.IsNullOrEmpty(Model.OtherCity)) ? Model.OtherCity : "N/A");}
+                                                <strong>City:</strong> sct
+                                            </li>
+                                            <li>
+                                                @{string sstat = ((!string.IsNullOrEmpty(Model.OtherState)) ? Model.OtherState : "N/A");}
+                                                <strong>State:</strong> @sstat
+                                            </li>
+                                            <li>
+                                                @{string spc = ((!string.IsNullOrEmpty(Model.OtherPostalCode)) ? Model.OtherPostalCode : "N/A");}
+                                                <strong>Postal Code:</strong> @spc
+                                            </li>
+                                            <li>
+                                                @{string scontr = ((!string.IsNullOrEmpty(Model.OtherCountry)) ? Model.OtherCountry : "N/A");}
+                                                <strong>Country:</strong> @scontr
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <br />
+                                    @using (Html.BeginForm("Delete", "Profile", FormMethod.Post, new { id = "DeleteProfileForm" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <div class="col-md-3 text-center mtop20">
+                                            @*<button type="submit" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> Delete</button>*@
+                                            <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target=".bs-example-modal-sm"><i class="fa fa-trash"></i> Delete</button>
+                                            <a href="@Url.Action("Index", "Profile")" class="btn btn-sm btn-dark"><i class="fa fa-level-up"></i> Back</a>
+                                        </div>
+
+                                        <!--Models dialog -->
+                                        <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog modal-sm">
+                                                <div class="modal-content">
+
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">×</span>
+                                                        </button>
+                                                        <h4 class="modal-title" id="myModalLabel2">Warning!</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <h4>Delete Confirmation</h4>
+                                                        <p>Are you sure? Do you want to delete this Profile?</p>
+                                                        <p>For delete, press Delete button. Otherwise press Close button.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                                                        <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="DeleteAction()"><i class="fa fa-trash"></i> Delete</button>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--Models dialog end-->
+                                    }
+                                </div>
+
+                            </section>
+
+                        </div>
+                        <!-- end project-detail sidebar -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
