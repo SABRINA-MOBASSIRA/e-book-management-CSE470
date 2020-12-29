@@ -34,8 +34,8 @@ namespace EBM.Models
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string EmailAddress { get; set; }
 
-        //public virtual ICollection<SalesQuotation> SalesQuotations { get; set; }
-        //public virtual ICollection<SalesInvoice> SalesInvoices { get; set; }
-        //public virtual ICollection<DeliveryChallan> DeliveryChallans { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Payment> Payments { get; set; }
+        public virtual ICollection<Delivery> Deliveries { get; set; }
     }
 }

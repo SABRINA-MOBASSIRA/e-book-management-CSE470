@@ -12,26 +12,26 @@ using Microsoft.AspNet.Identity;
 
 namespace EBM.Controllers
 {
-    public class CustomerController : Controller
+    public class SellerController : Controller
     {
         CheckAccessRoll car = new CheckAccessRoll();
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: Customer
+        // GET: Seller
         public ActionResult Index()
         {
-            if (!car.CheckAccessPermission("Customer", "IsRead"))
-            {
-                string URL = Request.UrlReferrer.ToString();
-                Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
-                return Redirect(URL);
-            }
-            return View();
+            //if (!car.CheckAccessPermission("Seller", "IsRead"))
+            //{
+            //    string URL = Request.UrlReferrer.ToString();
+            //    Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
+            //    return Redirect(URL);
+            //}
+            return View("Index");
         }
 
         #region Grid Machenism
         [HttpPost]
-        public JsonResult GetCustomers()
+        public JsonResult GetSellers()
         {
             // Initialization.   
             JsonResult result = new JsonResult();
@@ -46,16 +46,15 @@ namespace EBM.Controllers
                 int pageSize = Convert.ToInt32(Request.Form.GetValues("length")[0]);
                 // Loading.
                 string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
-                var data = ((from l in db.Customers
-                             select new CustomerGridData
+                var data = ((from l in db.Sellers
+                             select new SellerGridData
                              {
                                  Name = l.Name,
                                  PhoneNumber = l.PhoneNumber,
                                  Email = l.EmailAddress,
-                                 Address = l.Address,
-                                 Action = "<a href='/Customer/Details/" + l.CustomerID + "' class='btn btn-primary btn-xs'><i class='fa fa-folder'></i> View </a>" +
-                                 "<a href='/Customer/Edit/" + l.CustomerID + "' class='btn btn-info btn-xs'><i class='fa fa-pencil'></i> Edit </a>" +
-                                 "<a href='/Customer/Delete/" + l.CustomerID + "' class='btn btn-danger btn-xs'><i class='fa fa-trash - o'></i> Delete </a>"
+                                 Action = "<a href='/Seller/Details/" + l.SellerID + "' class='btn btn-primary btn-xs'><i class='fa fa-folder'></i> View </a>" +
+                                 "<a href='/Seller/Edit/" + l.SellerID + "' class='btn btn-info btn-xs'><i class='fa fa-pencil'></i> Edit </a>" +
+                                 "<a href='/Seller/Delete/" + l.SellerID + "' class='btn btn-danger btn-xs'><i class='fa fa-trash - o'></i> Delete </a>"
                              }).OrderBy(l => l.Name)).ToList();
                 // Total record count.   
                 int totalRecords = data.Count;
@@ -64,20 +63,19 @@ namespace EBM.Controllers
                     !string.IsNullOrWhiteSpace(search))
                 {
                     // Apply search   
-                    List<CustomerGridData> searchData = new List<CustomerGridData>();
+                    List<SellerGridData> searchData = new List<SellerGridData>();
                     foreach (var item in data)
                     {
                         if (((!string.IsNullOrEmpty(item.Name)) ? item.Name.ToString().ToLower().Contains(search.ToLower()) : false) ||
                         ((!string.IsNullOrEmpty(item.PhoneNumber)) ? item.PhoneNumber.ToString().ToLower().Contains(search.ToLower()) : false) ||
-                        ((!string.IsNullOrEmpty(item.Email)) ? item.Email.ToString().ToLower().Contains(search.ToLower()) : false) ||
-                        ((!string.IsNullOrEmpty(item.Address)) ? item.Address.ToString().ToLower().Contains(search.ToLower()) : false))
+                        ((!string.IsNullOrEmpty(item.Email)) ? item.Email.ToString().ToLower().Contains(search.ToLower()) : false))
                         {
                             searchData.Add(item);
                         }
                     }
                     if (searchData.Count() > 0)
                     {
-                        data = new List<CustomerGridData>();
+                        data = new List<SellerGridData>();
                         data = searchData;
                     }
                 }
@@ -112,10 +110,10 @@ namespace EBM.Controllers
         /// <param name="orderDir">Order direction parameter</param>  
         /// <param name="data">Data parameter</param>  
         /// <returns>Returns - Data</returns>  
-        private List<CustomerGridData> SortByColumnWithOrder(string order, string orderDir, List<CustomerGridData> data)
+        private List<SellerGridData> SortByColumnWithOrder(string order, string orderDir, List<SellerGridData> data)
         {
             // Initialization.   
-            List<CustomerGridData> lst = new List<CustomerGridData>();
+            List<SellerGridData> lst = new List<SellerGridData>();
             try
             {
                 // Sorting   
@@ -145,26 +143,26 @@ namespace EBM.Controllers
         }
         #endregion
 
-        // GET: Customer/Details/5
+        // GET: Seller/Details/5
         public ActionResult Details(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
-            Customer customer = (from c in db.Customers where c.CustomerID == id select c).FirstOrDefault();
-            if (customer == null)
+            //string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            Seller seller = (from c in db.Sellers where c.SellerID == id select c).FirstOrDefault();
+            if (seller == null)
             {
                 return HttpNotFound();
             }
-            return View(customer);
+            return View(seller);
         }
 
-        // GET: Customer/Create
+        // GET: Seller/Create
         public ActionResult Create()
         {
-            if (!car.CheckAccessPermission("Customer", "IsEdit"))
+            if (!car.CheckAccessPermission("Seller", "IsEdit"))
             {
                 string URL = Request.UrlReferrer.ToString();
                 Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
@@ -173,17 +171,17 @@ namespace EBM.Controllers
             return View();
         }
 
-        // POST: Customer/Create
+        // POST: Seller/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "CustomerID,Name,PhoneNumber,Address,EmailAddress")] Customer customer)
+        public ActionResult Create([Bind(Include = "SellerID,Name,PhoneNumber,EmailAddress")] Seller seller)
         {
             if (ModelState.IsValid)
             {
-                string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
-                db.Customers.Add(customer);
+                //string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                db.Sellers.Add(seller);
                 int res = db.SaveChanges();
                 //return RedirectToAction("Index");
                 if (res > 0)
@@ -197,10 +195,10 @@ namespace EBM.Controllers
             }
         }
 
-        // GET: Customer/Edit/5
+        // GET: Seller/Edit/5
         public ActionResult Edit(int? id)
         {
-            if (!car.CheckAccessPermission("Customer", "IsEdit"))
+            if (!car.CheckAccessPermission("Seller", "IsEdit"))
             {
                 string URL = Request.UrlReferrer.ToString();
                 Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
@@ -211,24 +209,24 @@ namespace EBM.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
-            Customer customer = (from c in db.Customers where c.CustomerID == id select c).FirstOrDefault();
-            if (customer == null)
+            Seller seller = (from c in db.Sellers where c.SellerID == id select c).FirstOrDefault();
+            if (seller == null)
             {
                 return HttpNotFound();
             }
-            return View(customer);
+            return View(seller);
         }
 
-        // POST: Customer/Edit/5
+        // POST: Seller/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "CustomerID,Name,PhoneNumber,Address,EmailAddress")] Customer customer)
+        public ActionResult Edit([Bind(Include = "SellerID,Name,PhoneNumber,EmailAddress")] Seller seller)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(customer).State = EntityState.Modified;
+                db.Entry(seller).State = EntityState.Modified;
                 int res = db.SaveChanges();
                 //return RedirectToAction("Index");
                 if (res > 0)
@@ -241,11 +239,10 @@ namespace EBM.Controllers
                 return Json("invalid", JsonRequestBehavior.AllowGet);
             }
         }
-
-        // GET: Customer/Delete/5
+        // GET: Seller/Delete/5
         public ActionResult Delete(int? id)
         {
-            if (!car.CheckAccessPermission("Customer", "IsDelete"))
+            if (!car.CheckAccessPermission("Seller", "IsDelete"))
             {
                 string URL = Request.UrlReferrer.ToString();
                 Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
@@ -256,21 +253,21 @@ namespace EBM.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
-            Customer customer = (from c in db.Customers where c.CustomerID == id select c).FirstOrDefault();
-            if (customer == null)
+            Seller seller = (from c in db.Sellers where c.SellerID == id select c).FirstOrDefault();
+            if (seller == null)
             {
                 return HttpNotFound();
             }
-            return View(customer);
+            return View(seller);
         }
 
-        // POST: Customer/Delete/5
+        // POST: Seller/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Customer customer = db.Customers.Find(id);
-            db.Customers.Remove(customer);
+            Seller seller = db.Sellers.Find(id);
+            db.Sellers.Remove(seller);
             int res = db.SaveChanges();
             //return RedirectToAction("Index");
             if (res > 0)
@@ -278,6 +275,7 @@ namespace EBM.Controllers
             else
                 return Json("error", JsonRequestBehavior.AllowGet);
         }
+
 
         protected override void Dispose(bool disposing)
         {
@@ -289,12 +287,11 @@ namespace EBM.Controllers
         }
     }
 
-    public class CustomerGridData
+    public class SellerGridData
     {
         public string Name { get; set; }
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
-        public string Address { get; set; }
         public string Action { get; set; }
 
     }

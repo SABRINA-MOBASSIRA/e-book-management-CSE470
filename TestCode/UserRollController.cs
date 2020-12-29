@@ -7,31 +7,22 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using EBM.Models;
-using EBM.Helper;
-using Microsoft.AspNet.Identity;
 
 namespace EBM.Controllers
 {
-    public class CustomerController : Controller
+    public class UserRollController : Controller
     {
-        CheckAccessRoll car = new CheckAccessRoll();
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        // GET: Customer
+        // GET: UserRoll
         public ActionResult Index()
         {
-            if (!car.CheckAccessPermission("Customer", "IsRead"))
-            {
-                string URL = Request.UrlReferrer.ToString();
-                Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
-                return Redirect(URL);
-            }
             return View();
         }
 
         #region Grid Machenism
         [HttpPost]
-        public JsonResult GetCustomers()
+        public JsonResult GetUserRolls()
         {
             // Initialization.   
             JsonResult result = new JsonResult();
@@ -45,18 +36,15 @@ namespace EBM.Controllers
                 int startRec = Convert.ToInt32(Request.Form.GetValues("start")[0]);
                 int pageSize = Convert.ToInt32(Request.Form.GetValues("length")[0]);
                 // Loading.
-                string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
-                var data = ((from l in db.Customers
-                             select new CustomerGridData
+                var data = ((from l in db.UserRolls
+                             select new UserRollGridData
                              {
-                                 Name = l.Name,
-                                 PhoneNumber = l.PhoneNumber,
-                                 Email = l.EmailAddress,
-                                 Address = l.Address,
-                                 Action = "<a href='/Customer/Details/" + l.CustomerID + "' class='btn btn-primary btn-xs'><i class='fa fa-folder'></i> View </a>" +
-                                 "<a href='/Customer/Edit/" + l.CustomerID + "' class='btn btn-info btn-xs'><i class='fa fa-pencil'></i> Edit </a>" +
-                                 "<a href='/Customer/Delete/" + l.CustomerID + "' class='btn btn-danger btn-xs'><i class='fa fa-trash - o'></i> Delete </a>"
-                             }).OrderBy(l => l.Name)).ToList();
+                                 UserName = l.UserName,
+                                 GroupName = l.UserGroup.GroupName,
+                                 Action = "<a href='/UserRoll/Details/" + l.UserRollID + "' class='btn btn-primary btn-xs'><i class='fa fa-folder'></i> View </a>" +
+                                 "<a href='/UserRoll/Edit/" + l.UserRollID + "' class='btn btn-info btn-xs'><i class='fa fa-pencil'></i> Edit </a>" +
+                                 "<a href='/UserRoll/Delete/" + l.UserRollID + "' class='btn btn-danger btn-xs'><i class='fa fa-trash - o'></i> Delete </a>"
+                             }).OrderBy(l => l.UserName)).ToList();
                 // Total record count.   
                 int totalRecords = data.Count;
                 // Verification.   
@@ -64,20 +52,18 @@ namespace EBM.Controllers
                     !string.IsNullOrWhiteSpace(search))
                 {
                     // Apply search   
-                    List<CustomerGridData> searchData = new List<CustomerGridData>();
+                    List<UserRollGridData> searchData = new List<UserRollGridData>();
                     foreach (var item in data)
                     {
-                        if (((!string.IsNullOrEmpty(item.Name)) ? item.Name.ToString().ToLower().Contains(search.ToLower()) : false) ||
-                        ((!string.IsNullOrEmpty(item.PhoneNumber)) ? item.PhoneNumber.ToString().ToLower().Contains(search.ToLower()) : false) ||
-                        ((!string.IsNullOrEmpty(item.Email)) ? item.Email.ToString().ToLower().Contains(search.ToLower()) : false) ||
-                        ((!string.IsNullOrEmpty(item.Address)) ? item.Address.ToString().ToLower().Contains(search.ToLower()) : false))
+                        if (((!string.IsNullOrEmpty(item.UserName)) ? item.UserName.ToString().ToLower().Contains(search.ToLower()) : false) ||
+                        ((!string.IsNullOrEmpty(item.GroupName)) ? item.GroupName.ToString().ToLower().Contains(search.ToLower()) : false))
                         {
                             searchData.Add(item);
                         }
                     }
                     if (searchData.Count() > 0)
                     {
-                        data = new List<CustomerGridData>();
+                        data = new List<UserRollGridData>();
                         data = searchData;
                     }
                 }
@@ -112,10 +98,10 @@ namespace EBM.Controllers
         /// <param name="orderDir">Order direction parameter</param>  
         /// <param name="data">Data parameter</param>  
         /// <returns>Returns - Data</returns>  
-        private List<CustomerGridData> SortByColumnWithOrder(string order, string orderDir, List<CustomerGridData> data)
+        private List<UserRollGridData> SortByColumnWithOrder(string order, string orderDir, List<UserRollGridData> data)
         {
             // Initialization.   
-            List<CustomerGridData> lst = new List<CustomerGridData>();
+            List<UserRollGridData> lst = new List<UserRollGridData>();
             try
             {
                 // Sorting   
@@ -123,15 +109,11 @@ namespace EBM.Controllers
                 {
                     case "0":
                         // Setting.   
-                        lst = orderDir.Equals("DESC", StringComparison.CurrentCultureIgnoreCase) ? data.OrderByDescending(p => p.Name).ToList() : data.OrderBy(p => p.Name).ToList();
+                        lst = orderDir.Equals("DESC", StringComparison.CurrentCultureIgnoreCase) ? data.OrderByDescending(p => p.UserName).ToList() : data.OrderBy(p => p.UserName).ToList();
                         break;
                     case "1":
                         // Setting.   
-                        lst = orderDir.Equals("DESC", StringComparison.CurrentCultureIgnoreCase) ? data.OrderByDescending(p => p.PhoneNumber).ToList() : data.OrderBy(p => p.PhoneNumber).ToList();
-                        break;
-                    case "2":
-                        // Setting.   
-                        lst = orderDir.Equals("DESC", StringComparison.CurrentCultureIgnoreCase) ? data.OrderByDescending(p => p.Email).ToList() : data.OrderBy(p => p.Email).ToList();
+                        lst = orderDir.Equals("DESC", StringComparison.CurrentCultureIgnoreCase) ? data.OrderByDescending(p => p.GroupName).ToList() : data.OrderBy(p => p.GroupName).ToList();
                         break;
                 }
             }
@@ -145,45 +127,39 @@ namespace EBM.Controllers
         }
         #endregion
 
-        // GET: Customer/Details/5
+        // GET: UserRoll/Details/5
         public ActionResult Details(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
-            Customer customer = (from c in db.Customers where c.CustomerID == id select c).FirstOrDefault();
-            if (customer == null)
+            UserRoll userRoll = db.UserRolls.Find(id);
+            if (userRoll == null)
             {
                 return HttpNotFound();
             }
-            return View(customer);
+            return View(userRoll);
         }
 
-        // GET: Customer/Create
+        // GET: UserRoll/Create
         public ActionResult Create()
         {
-            if (!car.CheckAccessPermission("Customer", "IsEdit"))
-            {
-                string URL = Request.UrlReferrer.ToString();
-                Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
-                return Redirect(URL);
-            }
+            ViewBag.UserID = new SelectList(db.Users, "Id", "UserName");
+            ViewBag.UserGroupID = new SelectList(db.UserGroups, "UserGroupID", "GroupName");
             return View();
         }
 
-        // POST: Customer/Create
+        // POST: UserRoll/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "CustomerID,Name,PhoneNumber,Address,EmailAddress")] Customer customer)
+        public ActionResult Create([Bind(Include = "UserRollID,UserGroupID,UserID,UserName,IsActive,Status,CreateBy,CreateOn,UpdateBy,UpdateOn,IsDeleted,DeleteBy,DeleteOn")] UserRoll userRoll)
         {
             if (ModelState.IsValid)
             {
-                string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
-                db.Customers.Add(customer);
+                db.UserRolls.Add(userRoll);
                 int res = db.SaveChanges();
                 //return RedirectToAction("Index");
                 if (res > 0)
@@ -197,38 +173,33 @@ namespace EBM.Controllers
             }
         }
 
-        // GET: Customer/Edit/5
+        // GET: UserRoll/Edit/5
         public ActionResult Edit(int? id)
         {
-            if (!car.CheckAccessPermission("Customer", "IsEdit"))
-            {
-                string URL = Request.UrlReferrer.ToString();
-                Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
-                return Redirect(URL);
-            }
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
-            Customer customer = (from c in db.Customers where c.CustomerID == id select c).FirstOrDefault();
-            if (customer == null)
+            UserRoll userRoll = db.UserRolls.Find(id);
+            if (userRoll == null)
             {
                 return HttpNotFound();
             }
-            return View(customer);
+            ViewBag.UserID = new SelectList(db.Users, "Id", "UserName", userRoll.UserID);
+            ViewBag.UserGroupID = new SelectList(db.UserGroups, "UserGroupID", "GroupName", userRoll.UserGroupID);
+            return View(userRoll);
         }
 
-        // POST: Customer/Edit/5
+        // POST: UserRoll/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "CustomerID,Name,PhoneNumber,Address,EmailAddress")] Customer customer)
+        public ActionResult Edit([Bind(Include = "UserRollID,UserGroupID,UserID,UserName,IsActive,Status,CreateBy,CreateOn,UpdateBy,UpdateOn,IsDeleted,DeleteBy,DeleteOn")] UserRoll userRoll)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(customer).State = EntityState.Modified;
+                db.Entry(userRoll).State = EntityState.Modified;
                 int res = db.SaveChanges();
                 //return RedirectToAction("Index");
                 if (res > 0)
@@ -242,35 +213,28 @@ namespace EBM.Controllers
             }
         }
 
-        // GET: Customer/Delete/5
+        // GET: UserRoll/Delete/5
         public ActionResult Delete(int? id)
         {
-            if (!car.CheckAccessPermission("Customer", "IsDelete"))
-            {
-                string URL = Request.UrlReferrer.ToString();
-                Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
-                return Redirect(URL);
-            }
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
-            Customer customer = (from c in db.Customers where c.CustomerID == id select c).FirstOrDefault();
-            if (customer == null)
+            UserRoll userRoll = db.UserRolls.Find(id);
+            if (userRoll == null)
             {
                 return HttpNotFound();
             }
-            return View(customer);
+            return View(userRoll);
         }
 
-        // POST: Customer/Delete/5
+        // POST: UserRoll/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Customer customer = db.Customers.Find(id);
-            db.Customers.Remove(customer);
+            UserRoll userRoll = db.UserRolls.Find(id);
+            db.UserRolls.Remove(userRoll);
             int res = db.SaveChanges();
             //return RedirectToAction("Index");
             if (res > 0)
@@ -289,12 +253,10 @@ namespace EBM.Controllers
         }
     }
 
-    public class CustomerGridData
+    public class UserRollGridData
     {
-        public string Name { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Email { get; set; }
-        public string Address { get; set; }
+        public string UserName { get; set; }
+        public string GroupName { get; set; }
         public string Action { get; set; }
 
     }

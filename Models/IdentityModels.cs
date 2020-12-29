@@ -35,7 +35,7 @@ namespace EBM.Models
         public DbSet<Product> Products { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Seller> Sellers { get; set; }
-        //public DbSet<SalesInvoice> SalesInvoices { get; set; }
+        public DbSet<Payment> Payments { get; set; }
         public DbSet<Profile> Profiles { get; set; }
 
         public static ApplicationDbContext Create()
@@ -43,9 +43,9 @@ namespace EBM.Models
             return new ApplicationDbContext();
         }
 
-        //public System.Data.Entity.DbSet<EBM.Models.SalesQuotation> SalesQuotations { get; set; }
+        public System.Data.Entity.DbSet<EBM.Models.Order> Orders { get; set; }
 
-        //public System.Data.Entity.DbSet<EBM.Models.SalesQuotationDetail> SalesQuotationDetails { get; set; }
+        public System.Data.Entity.DbSet<EBM.Models.Cart> Carts { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -53,6 +53,6 @@ namespace EBM.Models
             modelBuilder.Properties<decimal>().Configure(c => c.HasPrecision(18, 3));
         }
 
-        //public System.Data.Entity.DbSet<EBM.Models.DeliveryChallan> DeliveryChallans { get; set; }
+        public System.Data.Entity.DbSet<EBM.Models.Delivery> Deliveries { get; set; }
     }
 }

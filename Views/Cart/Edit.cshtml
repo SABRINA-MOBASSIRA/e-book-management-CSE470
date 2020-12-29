@@ -1,0 +1,343 @@
+﻿@model EBM.Models.Cart
+
+@{
+    ViewBag.Title = "Edit Cart";
+}
+
+<script>
+    $(document).ready(function () {
+
+        $("#Quantity").inputmask("decimal", {
+            placeholder: "0",
+            digits: 3,
+            digitsOptional: false,
+            allowPlus: false,
+            allowMinus: false,
+            clearMaskOnLostFocus: false,
+            removeMaskOnSubmit: true,
+            autoUnmask: true,
+            onUnMask: function (maskedValue, unmaskedValue) {
+                var x = unmaskedValue;
+                return x;
+            }
+        });
+
+        $("#UnitPrice").inputmask("decimal", {
+            placeholder: "0",
+            digits: 3,
+            digitsOptional: false,
+            allowPlus: false,
+            allowMinus: false,
+            clearMaskOnLostFocus: false,
+            removeMaskOnSubmit: true,
+            autoUnmask: true,
+            onUnMask: function (maskedValue, unmaskedValue) {
+                var x = unmaskedValue;
+                return x;
+            }
+        });
+        $("#TotalPrice").inputmask("decimal", {
+            placeholder: "0",
+            digits: 3,
+            digitsOptional: false,
+            allowPlus: false,
+            allowMinus: false,
+            clearMaskOnLostFocus: false,
+            removeMaskOnSubmit: true,
+            autoUnmask: true,
+            onUnMask: function (maskedValue, unmaskedValue) {
+                var x = unmaskedValue;
+                return x;
+            }
+        });
+        //$("#Discount").inputmask("decimal", {
+        //    placeholder: "0",
+        //    digits: 3,
+        //    digitsOptional: false,
+        //    allowPlus: false,
+        //    allowMinus: false,
+        //    clearMaskOnLostFocus: false,
+        //    removeMaskOnSubmit: true,
+        //    autoUnmask: true,
+        //    onUnMask: function (maskedValue, unmaskedValue) {
+        //        var x = unmaskedValue;
+        //        return x;
+        //    }
+        //});
+
+        //$("#UnitPrice").inputmask("decimal", {
+        //    placeholder: "0",
+        //    prefix: "Tk ",
+        //    digits: 2,
+        //    digitsOptional: false,
+        //    radixPoint: ",",
+        //    groupSeparator: ".",
+        //    autoGroup: true,
+        //    allowPlus: false,
+        //    allowMinus: false,
+        //    clearMaskOnLostFocus: false,
+        //    removeMaskOnSubmit: true,
+        //    autoUnmask: true,
+        //    onUnMask: function (maskedValue, unmaskedValue) {
+        //        var x = unmaskedValue.split(',');
+        //        return x[0].replace(/\./g, '') + '.' + x[1];
+        //    }
+        //});
+        //$("#TotalPrice").inputmask("decimal", {
+        //    placeholder: "0",
+        //    prefix: "Tk ",
+        //    digits: 2,
+        //    digitsOptional: false,
+        //    radixPoint: ",",
+        //    groupSeparator: ".",
+        //    autoGroup: true,
+        //    allowPlus: false,
+        //    allowMinus: false,
+        //    clearMaskOnLostFocus: false,
+        //    removeMaskOnSubmit: true,
+        //    autoUnmask: true,
+        //    onUnMask: function (maskedValue, unmaskedValue) {
+        //        var x = unmaskedValue.split(',');
+        //        return x[0].replace(/\./g, '') + '.' + x[1];
+        //    }
+        //});
+
+        $('#ProductID').change(function (e) {
+            $this = $(e.target);
+            var URL = "@Url.Action("GetDetailsByProduct", "Cart")";
+            $.ajax({
+                type: "POST",
+                url: URL, // Don't know asp/asp.net at all so you will have to do this bit
+                data: { name: $this.val() },
+                success: function (data) {
+                    $('#UnitPrice').val(data.UnitPrice);
+                    var qnt = $('#Quantity').val();
+                    var total = ((qnt = null) ? 0 : qnt) * data.UnitPrice;
+                    $('#TotalPrice').val(total);
+                }
+            });
+        });
+
+        $('#Quantity').on('input', function (e) {
+
+            $this = $(e.target);
+            var prodid = ($("#ProductID").find("option:selected").val());
+            var URL = "@Url.Action("GetTotalPriceByProductID", "Cart")";
+            $.ajax({
+                type: "POST",
+                url: URL, // Don't know asp/asp.net at all so you will have to do this bit
+                data: { id: prodid, count: parseInt($this.val()) },
+                success: function (data) {
+                    $('#TotalPrice').val(data.TotalPrice);
+                }
+            });
+        });
+
+    });
+
+    function UpdateAction() {
+        var ID = $("[id='CartID']").val();
+        var OdrID = $("[id='OrderID']").val();
+        var URL = "@Html.Raw(@Url.Action("Edit", "Cart", new { @id = "-1"}))";
+        URL = URL.replace("-1", ID);
+        var URLSuccess = "@Html.Raw(@Url.Action("Index", "Cart", new { @id = "-1" }))";
+        URLSuccess = URLSuccess.replace("-1", OdrID);
+        var res = "";
+
+        $.post(URL, $('#cartEditForm').serialize(), function (result) {
+            res = result;
+            NotificationFunctions(res);
+            if (res == "invalid") {
+                $('#cartEditForm').trigger('submit');
+            }
+        });
+        window.setTimeout(function () {
+            if (res == "success") {
+                window.location.href = URLSuccess;
+            }
+        }, 3000);
+    }
+
+    function NotificationFunctions(resData) {
+        if (resData == "success") {
+            new PNotify({
+                title: 'Update Success',
+                text: 'Order successfully updated!',
+                type: 'success',
+                styling: 'bootstrap3'
+            });
+        }
+        else if (resData == "ProductAlreadyExist") {
+            new PNotify({
+                title: 'Warning!',
+                text: 'This product already added.',
+                type: 'info',
+                styling: 'bootstrap3',
+                addclass: 'dark'
+            });
+        }
+        else {
+            new PNotify({
+                title: 'Oh No!',
+                text: 'Something terrible happened. can not update',
+                type: 'info',
+                styling: 'bootstrap3',
+                addclass: 'dark'
+            });
+        }
+    }
+
+</script>
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Edit Cart</h3>
+            </div>
+
+            <div class="title_right">
+                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">Go!</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Cart <small>edit info for update cart</small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href="#">Settings 1</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Settings 2</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a class="close-link"><i class="fa fa-close"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        <form id="cartEditForm" data-parsley-validate class="form-horizontal form-label-left" method="post" action="@Url.Action("Edit", "Cart")">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.CartID)
+                            @Html.HiddenFor(model => model.OrderID)
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ProductID">
+                                    Product
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    @Html.DropDownList("ProductID", null, "Select Product", htmlAttributes: new { @class = "select2_single form-control" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="Quantity">
+                                    Quantity <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    @Html.EditorFor(model => model.Quantity, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12", @required = "required" } })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="UnitPrice">
+                                    Unit Price <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    @Html.EditorFor(model => model.UnitPrice, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12", @readonly = "readonly", @required = "required" } })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="TotalPrice">
+                                    Total Price
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    @Html.EditorFor(model => model.TotalPrice, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12", @readonly = "readonly" } })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                    <a href="@Url.Action("Index", "Cart",new { @id = Model.OrderID})" class="btn btn-primary"><i class="fa fa-close"></i> Cancel</a>
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target=".bs-example-modal-sm"><i class="fa fa-pencil"></i> Update</button>
+                                </div>
+                            </div>
+
+                            <!--Models dialog -->
+                            <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                            <h4 class="modal-title" id="myModalLabel2">Warning!</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h4>Edit Confirmation</h4>
+                                            <p>Are you sure? Do you want to Edit this Cart?</p>
+                                            <p>For Edit, press Update button. Otherwise press Close button.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                                            <button type="button" class="btn btn-success" data-dismiss="modal" onclick="UpdateAction()"><i class="fa fa-pencil"></i> Update</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Models dialog end-->
+                            <!-- image cropping/Date Time -->
+                            <div class="container cropper">
+
+                                <div class="row">
+                                    <div class="col-md-9 docs-buttons">
+                                        <!-- <h3 class="page-header">Toolbar:</h3> -->
+                                        <!-- Show the cropped image in modal -->
+                                        <div class="modal fade docs-cropped" id="getCroppedCanvasModal" aria-hidden="true" aria-labelledby="getCroppedCanvasTitle" role="dialog" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        <h4 class="modal-title" id="getCroppedCanvasTitle">Cropped</h4>
+                                                    </div>
+                                                    <div class="modal-body"></div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                        <a class="btn btn-primary" id="download" href="javascript:void(0);" download="cropped.png">Download</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div><!-- /.modal -->
+
+                                    </div><!-- /.docs-buttons -->
+
+                                </div>
+                            </div>
+                            <!-- /image cropping/Date Time -->
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

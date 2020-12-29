@@ -23,6 +23,6 @@ namespace EBM.Models
         public decimal? Price { get; set; }
         [Display(Name = "Photo")]
         public string ImagePath { get; set; }
-        //public virtual ICollection<SalesQuotationDetail> SalesQuotationDetails { get; set; }
+        public virtual ICollection<Cart> Carts { get; set; }
     }
 }

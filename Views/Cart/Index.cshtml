@@ -1,0 +1,467 @@
+﻿@model EBM.Models.Cart
+
+@{
+    ViewBag.Title = "Cart Info";
+}
+
+@*<script src="https://code.jquery.com/jquery-1.9.1.js"></script>*@
+<script src="~/Scripts/jquery-ui.js"></script>
+
+<script type="text/javascript" language="javascript">
+    var grouprolltable;
+    $(document).ready(function () {
+        $('#ProductName').autocomplete({
+            @*source: "@Url.Action("AutocompleteSuggestions", "Cart")"*@
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutocompleteSuggestions", "Cart")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name };
+                        }))
+
+                    }
+                })
+            },
+            change: function () {
+                var v = $('#ProductName').val();
+                var URL = "@Url.Action("GetDetailsByProduct", "Cart")";
+                $.ajax({
+                    type: "POST",
+                    url: URL, // Don't know asp/asp.net at all so you will have to do this bit
+                    data: { name: v },
+                    success: function (data) {
+                        $('#UnitPrice').val(data.UnitPrice);
+                        var qnt = $('#Quantity').val();
+                        var total = ((qnt = null) ? 0 : qnt) * data.UnitPrice;
+                        $('#TotalPrice').val(total);
+                    }
+                });
+            },
+            messages: {
+                noResults: "", results: ""
+            }
+        });
+
+
+        var sqID = '@ViewBag.OrderID';
+        var URL = "@Html.Raw(@Url.Action("GetCarts", "Cart", new { @id = "-1"}))";
+        URL = URL.replace("-1", sqID);
+        grouprolltable = $('#datatable-responsive').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": URL,
+                "type": "POST",
+                "dataType": "JSON"
+            },
+            "columns": [
+            { "data": "Product", "orderable": true },
+            { "data": "Quantity", "orderable": false },
+            { "data": "UnitPrice", "orderable": false },
+                { "data": "TotalPrice", "orderable": false },
+                { "data": "Discount", "orderable": false },
+            { "data": "Action", "orderable": false }
+            ]
+        });
+
+        //$("#ProductID").change(function () {
+        //    grouprolltable.ajax.url("../SalesQuotationDetail/GetSalesQuotationDetails/" + ($("#SalesQuotationID").find("option:selected").val())).load();
+        //});
+
+        //$("#Quantity").inputmask("decimal", {
+        //    placeholder: "0",
+        //    digits: 3,
+        //    digitsOptional: false,
+        //    allowPlus: false,
+        //    allowMinus: false,
+        //    clearMaskOnLostFocus: false,
+        //    removeMaskOnSubmit: true,
+        //    autoUnmask: true,
+        //    onUnMask: function (maskedValue, unmaskedValue) {
+        //        var x = unmaskedValue;
+        //        return x;
+        //    }
+        //});
+
+        //$("#UnitPrice").inputmask("decimal", {
+        //    placeholder: "0",
+        //    digits: 3,
+        //    digitsOptional: false,
+        //    allowPlus: false,
+        //    allowMinus: false,
+        //    clearMaskOnLostFocus: false,
+        //    removeMaskOnSubmit: true,
+        //    autoUnmask: true,
+        //    onUnMask: function (maskedValue, unmaskedValue) {
+        //        var x = unmaskedValue;
+        //        return x;
+        //    }
+        //});
+        //$("#TotalPrice").inputmask("decimal", {
+        //    placeholder: "0",
+        //    digits: 3,
+        //    digitsOptional: false,
+        //    allowPlus: false,
+        //    allowMinus: false,
+        //    clearMaskOnLostFocus: false,
+        //    removeMaskOnSubmit: true,
+        //    autoUnmask: true,
+        //    onUnMask: function (maskedValue, unmaskedValue) {
+        //        var x = unmaskedValue;
+        //        return x;
+        //    }
+        //});
+
+        //$("#UnitPrice").inputmask("decimal", {
+        //    placeholder: "0",
+        //    prefix: "Tk ",
+        //    digits: 2,
+        //    digitsOptional: false,
+        //    radixPoint: ",",
+        //    groupSeparator: ".",
+        //    autoGroup: true,
+        //    allowPlus: false,
+        //    allowMinus: false,
+        //    clearMaskOnLostFocus: false,
+        //    removeMaskOnSubmit: true,
+        //    autoUnmask: true,
+        //    onUnMask: function (maskedValue, unmaskedValue) {
+        //        var x = unmaskedValue.split(',');
+        //        return x[0].replace(/\./g, '') + '.' + x[1];
+        //    }
+        //});
+        //$("#TotalPrice").inputmask("decimal", {
+        //    placeholder: "0",
+        //    prefix: "Tk ",
+        //    digits: 2,
+        //    digitsOptional: false,
+        //    radixPoint: ",",
+        //    groupSeparator: ".",
+        //    autoGroup: true,
+        //    allowPlus: false,
+        //    allowMinus: false,
+        //    clearMaskOnLostFocus: false,
+        //    removeMaskOnSubmit: true,
+        //    autoUnmask: true,
+        //    onUnMask: function (maskedValue, unmaskedValue) {
+        //        var x = unmaskedValue.split(',');
+        //        return x[0].replace(/\./g, '') + '.' + x[1];
+        //    }
+        //});
+
+        @*$('#ProductID').change(function (e) {
+            $this = $(e.target);
+            var URL = "@Url.Action("GetDetailsByProduct", "SalesQuotationDetail")";
+            $.ajax({
+                type: "POST",
+                url: URL, // Don't know asp/asp.net at all so you will have to do this bit
+                data: { id: $this.val() },
+                success: function (data) {
+                    $('#UnitPrice').val(data.UnitPrice);
+                    var qnt = $('#Quantity').val();
+                    var total = ((qnt = null) ? 0 : qnt) * data.UnitPrice;
+                    $('#TotalPrice').val(total);
+                }
+            });
+        });*@
+
+        $('#Quantity').on('input', function (e) {
+            $this = $(e.target);
+            var v = $('#ProductName').val();
+            var URL = "@Url.Action("GetTotalPrice", "Cart")";
+            $.ajax({
+                type: "POST",
+                url: URL, // Don't know asp/asp.net at all so you will have to do this bit
+                data: { name: v, count: $this.val() },
+                success: function (data) {
+                    $('#TotalPrice').val(data.TotalPrice);
+                }
+            });
+        });
+    });
+
+    function CreateAction() {
+
+        var URL = "@Url.Action("Create", "Cart")";
+        var URLSuccess = "@Html.Raw(@Url.Action("Index", "Cart"))";
+        var res = "";
+        $('#OrderID').val('@ViewBag.OrderID');
+        var prdNm = $('#ProductName').val();
+        $('#hidProductName').val(prdNm);
+
+        $.post(URL, $('#cartCreateForm').serialize(), function (result) {
+            res = result;
+            NotificationFunctions(res);
+            if (res == "invalid") {
+                $('#cartCreateForm').trigger('submit');
+            }
+        });
+        window.setTimeout(function () {
+            if (res == "success") {
+                window.location.href = URLSuccess;
+            }
+        }, 3000);
+    }
+
+    function NotificationFunctions(resData) {
+        if (resData == "success") {
+            new PNotify({
+                title: 'Create Success',
+                text: 'Product add successfully!',
+                type: 'success',
+                styling: 'bootstrap3'
+            });
+        }
+        else if (resData == "ProductAlreadyExist") {
+            new PNotify({
+                title: 'Warning!',
+                text: 'This product already added.',
+                type: 'info',
+                styling: 'bootstrap3',
+                addclass: 'dark'
+            });
+        }
+        else {
+            new PNotify({
+                title: 'Oh No!',
+                text: 'Something terrible happened. can not create',
+                type: 'info',
+                styling: 'bootstrap3',
+                addclass: 'dark'
+            });
+        }
+    }
+
+</script>
+<style>
+    .ui-autocomplete-input {
+        border: none;
+        font-size: 14px;
+        width: 300px;
+        height: 24px;
+        margin-bottom: 5px;
+        padding-top: 2px;
+        border: 1px solid #DDD !important;
+        padding-top: 0px !important;
+        z-index: 1511;
+        position: relative;
+    }
+
+    .ui-menu .ui-menu-item a {
+        font-size: 12px;
+    }
+
+    .ui-autocomplete {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1510 !important;
+        float: left;
+        display: none;
+        min-width: 160px;
+        width: 160px;
+        padding: 4px 0;
+        margin: 2px 0 0 0;
+        list-style: none;
+        background-color: #ffffff;
+        border-color: #ccc;
+        border-color: rgba(0, 0, 0, 0.2);
+        border-style: solid;
+        border-width: 1px;
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+        border-radius: 2px;
+        -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        -webkit-background-clip: padding-box;
+        -moz-background-clip: padding;
+        background-clip: padding-box;
+        *border-right-width: 2px;
+        *border-bottom-width: 2px;
+    }
+
+    .ui-menu-item > a.ui-corner-all {
+        display: block;
+        padding: 3px 15px;
+        clear: both;
+        font-weight: normal;
+        line-height: 18px;
+        color: #555555;
+        white-space: nowrap;
+        text-decoration: none;
+    }
+
+    .ui-state-hover, .ui-state-active {
+        color: #ffffff;
+        text-decoration: none;
+        background-color: #0088cc;
+        border-radius: 0px;
+        -webkit-border-radius: 0px;
+        -moz-border-radius: 0px;
+        background-image: none;
+    }
+
+    /*#modalIns {
+        width: 500px;
+    }*/
+</style>
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Cart Detail <small>All Cart Detail</small></h3>
+            </div>
+
+            <div class="title_right">
+                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">Go!</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Cart Detail Info <small>List</small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href="#">Settings 1</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Settings 2</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a class="close-link"><i class="fa fa-close"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @*<p class="text-muted font-13 m-b-30">
+                                Responsive is an extension for DataTables that resolves that problem by optimising the table's layout for different screen sizes through the dynamic insertion and removal of columns from the table.
+                            </p>*@
+
+                        <form id="cartCreateForm" data-parsley-validate class="form-horizontal form-label-left" method="post" action="@Url.Action("Create", "Cart")">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.OrderID)
+                            @Html.Hidden("hidProductName")
+                            <div class="col-md-3 alignright">
+                                @*<a href="@Url.Action("Create","ProductMesurement")" class="btn btn-success btn-sm alignright"><i class="fa fa-file"></i> Manage Product Mesurement</a>*@
+                                <button type="button" class="btn btn-success btn-sm alignright" data-toggle="modal" data-target="#createModel"><i class="fa fa-file"></i> Add Products</button>
+                                <a href="@Url.Action("Index", "Order")" class="btn btn-dark btn-sm alignright"><i class="fa fa-level-up"></i> Back</a>
+                            </div>
+                            <div class="clearfix"></div>
+                            <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%">Product</th>
+                                        <th>Quantity</th>
+                                        <th>Unit price</th>
+                                        <th>Total price</th>
+                                        <th>Discount</th>
+                                        <th style="width: 20%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <!-- Large modal -->
+                            <div id="createModel" name="createModel" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                            <h4 class="modal-title" id="myModalLabel">Add Products</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            @*<div class="form-group">
+                                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ProductID">
+                                                        Product
+                                                    </label>
+                                                    <div class="col-md-4 col-sm-4 col-xs-12">
+                                                        @Html.DropDownList("ProductID", null, "Select Product", htmlAttributes: new { @class = "select2_single form-control", @tabindex = "-1" })
+                                                    </div>
+                                                </div>
+                                                <label for="somevalue">Some value:</label><input type="text" id="somevalue" name="somevalue" />*@
+                                            <div class="form-group">
+                                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ProductName">
+                                                    Product <span class="required">*</span>
+                                                </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.Editor("ProductName", new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12", @required = "required" } })
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="Quantity">
+                                                    Quantity <span class="required">*</span>
+                                                </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.EditorFor(model => model.Quantity, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12", @required = "required" } })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="UnitPrice">
+                                                    Unit Price <span class="required">*</span>
+                                                </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.EditorFor(model => model.UnitPrice, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12", @readonly = "readonly", @required = "required" } })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="TotalPrice">
+                                                    Total Price
+                                                </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.EditorFor(model => model.TotalPrice, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12", @readonly = "readonly" } })
+                                                </div>
+                                            </div>
+                                            @*<div class="form-group">
+                                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="Discount">
+                                                    Discount(%)
+                                                </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.EditorFor(model => model.Discount, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12" } })
+                                                </div>
+                                            </div>*@
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                                            <button type="button" class="btn btn-success" data-dismiss="modal" onclick="CreateAction()"><i class="fa fa-plus-square"></i> Add</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

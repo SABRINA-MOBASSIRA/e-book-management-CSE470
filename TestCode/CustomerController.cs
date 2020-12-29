@@ -20,13 +20,13 @@ namespace EBM.Controllers
         // GET: Customer
         public ActionResult Index()
         {
-            if (!car.CheckAccessPermission("Customer", "IsRead"))
-            {
-                string URL = Request.UrlReferrer.ToString();
-                Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
-                return Redirect(URL);
-            }
-            return View();
+            //if (!car.CheckAccessPermission("Customer", "IsRead"))
+            //{
+            //    string URL = Request.UrlReferrer.ToString();
+            //    Content("<script language='javascript' type='text/javascript'>alert('You have no access!');</script>");
+            //    return Redirect(URL);
+            //}
+            return View("Index");
         }
 
         #region Grid Machenism
@@ -152,7 +152,7 @@ namespace EBM.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            //string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
             Customer customer = (from c in db.Customers where c.CustomerID == id select c).FirstOrDefault();
             if (customer == null)
             {
@@ -182,7 +182,7 @@ namespace EBM.Controllers
         {
             if (ModelState.IsValid)
             {
-                string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
+                //string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
                 db.Customers.Add(customer);
                 int res = db.SaveChanges();
                 //return RedirectToAction("Index");
@@ -210,7 +210,7 @@ namespace EBM.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
+            //string userID = System.Web.HttpContext.Current.User.Identity.GetUserId();
             Customer customer = (from c in db.Customers where c.CustomerID == id select c).FirstOrDefault();
             if (customer == null)
             {

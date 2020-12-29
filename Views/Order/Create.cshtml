@@ -1,0 +1,206 @@
+﻿@model EBM.Models.Order
+
+@{
+    ViewBag.Title = "Create Order";
+}
+
+<script>
+    $(document).ready(function () {
+
+        $('#orderDate').daterangepicker({
+            singleDatePicker: true,
+            singleClasses: "picker_4"
+        }, function (start, end, label) {
+            console.log(start.toISOString(), end.toISOString(), label);
+            });
+
+    });
+
+    function CreateAction() {
+        var URL = "@Url.Action("Create", "Order")";
+        var URLSuccess = "@Html.Raw(@Url.Action("Index", "Order"))";
+        var res = "";
+
+        $.post(URL, $('#orderCreateForm').serialize(), function (result) {
+            res = result;
+            NotificationFunctions(res);
+            if (res == "invalid") {
+                $('#orderCreateForm').trigger('submit');
+            }
+        });
+        window.setTimeout(function () {
+            if (res == "success") {
+                window.location.href = URLSuccess;
+            }
+        }, 3000);
+    }
+
+    function NotificationFunctions(resData) {
+        if (resData == "success") {
+            new PNotify({
+                title: 'Create Success',
+                text: 'Order successfully created!',
+                type: 'success',
+                styling: 'bootstrap3'
+            });
+        }
+        else {
+            new PNotify({
+                title: 'Oh No!',
+                text: 'Something terrible happened. can not create',
+                type: 'info',
+                styling: 'bootstrap3',
+                addclass: 'dark'
+            });
+        }
+    }
+
+</script>
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Create Order</h3>
+            </div>
+
+            <div class="title_right">
+                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">Go!</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Order <small>fill info for create a new order</small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href="#">Settings 1</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Settings 2</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a class="close-link"><i class="fa fa-close"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        <form id="orderCreateForm" data-parsley-validate class="form-horizontal form-label-left" method="post" action="@Url.Action("Create", "Order")">
+                            @Html.AntiForgeryToken()
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="QuotationNo">
+                                    Order No <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    @Html.EditorFor(model => model.OrderNo, new { htmlAttributes = new { @class = "form-control col-md-7 col-xs-12", @required = "required", @readonly = "readonly", @Value = ViewBag.OrderNo } })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="Date">
+                                    Date <span class="required">*</span>
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12" style="margin-left:-.94%">
+                                    <div class="col-md-11 xdisplay_inputx form-group has-feedback">
+                                        @Html.EditorFor(model => model.Date, new { htmlAttributes = new { @class = "form-control has-feedback-left", @id = "orderDate", @placeholder = "Select Date", @aria_describedby = "inputSuccess2Status4" } })
+                                        <span class="fa fa-calendar-o form-control-feedback left" aria-hidden="true"></span>
+                                        <span id="inputSuccess2Status4" class="sr-only">(success)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="CustomerID">
+                                    Customer <span class="required">*</span>
+                                </label>
+                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                    @Html.DropDownList("CustomerID", null, "Select a Customer", htmlAttributes: new { @class = "select2_single form-control", @tabindex = "-1", @required = "required" })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                    <a href="@Url.Action("Index", "SalesQuotation")" class="btn btn-primary"><i class="fa fa-close"></i> Cancel</a>
+                                    <button class="btn btn-primary" type="reset"><i class="fa fa-refresh"></i> Reset</button>
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target=".bs-example-modal-sm"><i class="fa fa-file"></i> Save</button>
+                                </div>
+                            </div>
+
+                            <!--Models dialog -->
+                            <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog modal-sm">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                            <h4 class="modal-title" id="myModalLabel2">Warning!</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h4>Create Confirmation</h4>
+                                            <p>Are you sure? Do you want to create this Order?</p>
+                                            <p>For create, press Save button. Otherwise press Close button.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                                            <button type="button" class="btn btn-success" data-dismiss="modal" onclick="CreateAction()"><i class="fa fa-file"></i> Save</button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Models dialog end-->
+                            <!-- image cropping/Date Time -->
+                            <div class="container cropper">
+
+                                <div class="row">
+                                    <div class="col-md-9 docs-buttons">
+                                        <!-- <h3 class="page-header">Toolbar:</h3> -->
+                                        <!-- Show the cropped image in modal -->
+                                        <div class="modal fade docs-cropped" id="getCroppedCanvasModal" aria-hidden="true" aria-labelledby="getCroppedCanvasTitle" role="dialog" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        <h4 class="modal-title" id="getCroppedCanvasTitle">Cropped</h4>
+                                                    </div>
+                                                    <div class="modal-body"></div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                        <a class="btn btn-primary" id="download" href="javascript:void(0);" download="cropped.png">Download</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div><!-- /.modal -->
+
+                                    </div><!-- /.docs-buttons -->
+
+                                </div>
+                            </div>
+                            <!-- /image cropping/Date Time -->
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
